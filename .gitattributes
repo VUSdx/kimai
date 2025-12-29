@@ -16,3 +16,12 @@ phpstan.sh export-ignore
 phpunit.xml.dist export-ignore
 webpack.config.js export-ignore
 yarn.lock export-ignore
+
+
+# Source code – normalized
+* text=auto
+
+# Build output MUST be binary
+/dist/** -text
+/build/** -text
+/public/build/** -text
