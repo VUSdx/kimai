@@ -305,7 +305,7 @@ ENV memory_limit=512M
 # the "prod" stage (production build) is configured as last stage in the file, as this is the default target in BuildKit
 FROM base AS prod
 # copy kimai production source
-COPY --from=git-prod --chown=www-data:www-data /opt/kimai /opt/kimai
+COPY --chown=www-data:www-data ./ /opt/kimai
 COPY .docker /assets
 # do the composer deps installation
 RUN \
