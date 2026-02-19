@@ -123,14 +123,24 @@ final class QuickEntryForm extends AbstractType
             /** @var \App\Model\QuickEntryModel $objectB */
             $objectB = $b->vars['data'];
 
-            $existingA = $objectA->hasExistingTimesheet();
-            $existingB = $objectB->hasExistingTimesheet();
+            $projectA = $objectA->getProject()?->getName();
+            $projectB = $objectB->getProject()?->getName();
 
-            if ($existingA === $existingB) {
-                return 0;
+            if ($projectA === null && $projectB === null) {
+                $projectCmp = 0;
+            } elseif ($projectA === null) {
+                $projectCmp = 1;
+            } elseif ($projectB === null) {
+                $projectCmp = -1;
+            } else {
+                $projectCmp = strcmp($projectA, $projectB);
             }
 
-            return ($existingA && !$existingB) ? -1 : 1;
+            if ($projectCmp !== 0) {
+                return $projectCmp;
+            }
+
+            return strcmp((string) $objectA->getActivity()?->getName(), (string) $objectB->getActivity()?->getName());
         });
     }
 

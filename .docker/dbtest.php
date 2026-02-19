@@ -10,6 +10,7 @@ echo "Testing DB:";
 try {
     $pdo = new \PDO("mysql:host=$DATABASE_HOST;dbname=$DATABASE_BASE;port=$DATABASE_PORT", "$DATABASE_USER", "$DATABASE_PASS", [
         \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+		// Remove next two lines when testing locally
 		\PDO::MYSQL_ATTR_SSL_CA => '/etc/ssl/certs/ca-certificates.crt', // path to trusted CA bundle
         \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true, // optional, verify server certificate
     ]);
