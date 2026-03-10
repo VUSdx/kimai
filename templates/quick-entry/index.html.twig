@@ -45,6 +45,20 @@
                 </thead>
                 <tbody id="ts-collection" data-index="{{ form.rows.children|length }}">
                     {{ form_widget(form.rows) }}
+                    <tr class="qe-commute-row">
+                        <td colspan="{{ 2 + metaColumns|length }}">{{ 'commute'|trans }}</td>
+                        {% for dateStr, day in days %}
+                            <td class="text-center{% if day.day is weekend %} weekend{% endif %}{% if day.day is today %} today{% endif %}">
+                                <input type="checkbox"
+                                       name="commute_days[{{ dateStr }}]"
+                                       value="1"
+                                       class="form-check-input"
+                                       {% if commuteDays[dateStr] ?? false %}checked{% endif %}
+                                       {% if locked %}disabled{% endif %} />
+                            </td>
+                        {% endfor %}
+                        <td></td>
+                    </tr>
                 </tbody>
                 <tfoot>
                     <tr class="summary">

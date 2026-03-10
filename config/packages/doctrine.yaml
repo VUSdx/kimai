@@ -3,7 +3,7 @@ parameters:
     # This allows you to run cache:warmup even if your
     # environment variables are not available yet.
     # You should not need to change this value.
-    env(DATABASE_URL): ''
+    env(DATABASE_URL): ""
 
 doctrine:
     dbal:
@@ -12,8 +12,8 @@ doctrine:
             default:
                 # existing migrations will fail if the schema filter is activated
                 #schema_filter: ~^(?!(bundle_migration_|kimai2_sessions))~
-                url: '%env(DATABASE_URL)%'
-                driver: 'pdo_mysql'
+                url: "%env(DATABASE_URL)%"
+                driver: "pdo_mysql"
                 charset: utf8mb4
                 default_table_options:
                     charset: utf8mb4
@@ -31,7 +31,7 @@ doctrine:
             # FIXME this is causing a deprecation and needs to be changed
             # auto_mapping: false
             auto_mapping: true
-        auto_generate_proxy_classes: '%kernel.debug%'
+        auto_generate_proxy_classes: "%kernel.debug%"
         default_entity_manager: default
         enable_lazy_ghost_objects: true
         entity_managers:
@@ -43,7 +43,7 @@ doctrine:
                 mappings:
                     App:
                         type: attribute
-                        dir: '%kernel.project_dir%/src/Entity'
+                        dir: "%kernel.project_dir%/src/Entity"
                         prefix: 'App\Entity'
                         alias: Kimai
                 dql:

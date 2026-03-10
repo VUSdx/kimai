@@ -10,11 +10,13 @@
 namespace App\Controller;
 
 use App\Configuration\SystemConfiguration;
+use App\Entity\CommuteDay;
 use App\Event\QuickEntryMetaDisplayEvent;
 use App\Form\QuickEntryForm;
 use App\Form\WeekByUserForm;
 use App\Model\QuickEntryWeek;
 use App\Reporting\WeekByUser\WeekByUser;
+use App\Repository\CommuteDayRepository;
 use App\Repository\Query\TimesheetQuery;
 use App\Repository\TimesheetRepository;
 use App\Timesheet\FavoriteRecordService;
@@ -40,6 +42,7 @@ final class QuickEntryController extends AbstractController
         private readonly FavoriteRecordService $favoriteRecordService,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly WorkingTimeService $workingTimeService,
+        private readonly CommuteDayRepository $commuteDayRepository,
     )
     {
     }
@@ -232,6 +235,12 @@ final class QuickEntryController extends AbstractController
             'end_date' => $endWeek,
         ]);
 
+        $existingCommutes = $this->commuteDayRepository->findForWeek($user, $startWeek, $endWeek);
+        $commuteDays = [];
+        foreach ($week as $dateStr => $_) {
+            $commuteDays[$dateStr] = isset($existingCommutes[$dateStr]) && $existingCommutes[$dateStr]->isCommute();
+        }
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -284,6 +293,25 @@ final class QuickEntryController extends AbstractController
                     }
                 }
 
+                if (!$locked) {
+                    $submittedCommute = $request->request->all()['commute_days'] ?? [];
+                    $existingCommutes = $this->commuteDayRepository->findForWeek($user, $startWeek, $endWeek);
+                    foreach ($week as $dateStr => $_) {
+                        $commuted = isset($submittedCommute[$dateStr]);
+                        $entity = $existingCommutes[$dateStr] ?? null;
+                        if ($commuted) {
+                            if ($entity === null) {
+                                $entity = new CommuteDay($user, new \DateTimeImmutable($dateStr));
+                            }
+                            $entity->setCommute(true);
+                            $this->commuteDayRepository->save($entity);
+                        } elseif ($entity !== null) {
+                            $this->commuteDayRepository->remove($entity);
+                        }
+                    }
+                    $saved = true;
+                }
+
                 if ($saved) {
                     $this->flashSuccess('action.update.success');
 
@@ -305,6 +333,7 @@ final class QuickEntryController extends AbstractController
             'form' => $form->createView(),
             'metaColumns' => $metaFields,
             'locked' => $locked,
+            'commuteDays' => $commuteDays,
         ]);
     }
 }

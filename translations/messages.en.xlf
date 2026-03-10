@@ -330,6 +330,10 @@
         <source>comment</source>
         <target>Comment</target>
       </trans-unit>
+      <trans-unit id="commute" resname="commute">
+        <source>commute</source>
+        <target>Commuted to office</target>
+      </trans-unit>
       <trans-unit id="pWFFJwz" resname="id">
         <source>id</source>
         <target>ID</target>
