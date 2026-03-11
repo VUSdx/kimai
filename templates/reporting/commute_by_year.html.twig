@@ -1,0 +1,47 @@
+{% extends 'reporting/layout.html.twig' %}
+{% import "macros/widgets.html.twig" as widgets %}
+
+{% set year = form.date.vars.year|date('Y') %}
+
+{% block report_form_layout %}
+    {{ form_widget(form.date) }}
+    {% if form.user is defined %}
+        {{ form_widget(form.user, {'label': false}) }}
+    {% elseif app.user != user %}
+        {{ widgets.username(user) }}
+    {% endif %}
+{% endblock %}
+
+{% block report %}
+    {% embed '@theme/embeds/card.html.twig' with {box_id: box_id, fullsize: true} %}
+        {% block box_body_class %}{{ box_id }} table-responsive m-0{% endblock %}
+        {% block box_body %}
+            <table class="table table-hover dataTable">
+                <thead>
+                    <tr>
+                        <th>{{ user.displayName|default(user.userIdentifier)|default('')|sanitize_dde }}</th>
+                        {% for month in 1..12 %}
+                            <th class="text-center text-nowrap">
+                                <a href="{{ path('report_user_month', {'date': countsByMonth[month]['month'], 'user': user.id}) }}">
+                                    {{ countsByMonth[month]['month']|date('M') }}
+                                </a>
+                            </th>
+                        {% endfor %}
+                        <th class="text-center text-nowrap">{{ 'stats.durationTotal'|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ widgets.username(user) }}</td>
+                        {% for month in 1..12 %}
+                            <td class="text-center">
+                                {{ countsByMonth[month]['cnt'] }}
+                            </td>
+                        {% endfor %}
+                        <td class="text-center">{{ total }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
