@@ -218,6 +218,11 @@ services:
         factory: ['@doctrine.orm.entity_manager', getRepository]
         arguments: ['App\Entity\ExportTemplate']
 
+    App\Repository\VacationAllowanceRepository:
+        class: App\Repository\VacationAllowanceRepository
+        factory: ['@doctrine.orm.entity_manager', getRepository]
+        arguments: ['App\Entity\VacationAllowance']
+
     monolog.formatter.kimai:
         class: Monolog\Formatter\LineFormatter
         arguments:

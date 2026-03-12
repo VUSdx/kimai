@@ -12,11 +12,13 @@ namespace App\Controller;
 use App\Activity\ActivityService;
 use App\Entity\Timesheet;
 use App\Entity\User;
+use App\Entity\VacationAllowance;
 use App\Event\WorkContractDetailControllerEvent;
 use App\Form\ContractByUserForm;
 use App\Project\ProjectService;
 use App\Repository\TimesheetRepository;
 use App\Repository\UserRepository;
+use App\Repository\VacationAllowanceRepository;
 use App\Reporting\YearByUser\YearByUser;
 use App\Timesheet\TimesheetService;
 use App\Utils\PageSetup;
@@ -28,8 +30,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
-use Yasumi\Yasumi;
 use Yasumi\Holiday;
+use Yasumi\Yasumi;
 
 /**
  * Users can control their working time statistics
@@ -37,8 +39,13 @@ use Yasumi\Holiday;
 final class ContractController extends AbstractController
 {
     #[Route(path: '/contract', name: 'user_contract', methods: ['GET', 'POST'])]
-    public function __invoke(Request $request, WorkingTimeService $workingTimeService, EventDispatcherInterface $eventDispatcher): Response
-    {
+    public function __invoke(
+        Request $request,
+        WorkingTimeService $workingTimeService,
+        EventDispatcherInterface $eventDispatcher,
+        VacationAllowanceRepository $vacationAllowanceRepository,
+        TimesheetRepository $timesheetRepository,
+    ): Response {
         $currentUser = $this->getUser();
         $dateTimeFactory = $this->getDateTimeFactory($currentUser);
         $canChangeUser = $this->isGranted('hours_other_profile');
@@ -109,6 +116,33 @@ final class ContractController extends AbstractController
             }
         }
 
+        // Vacation balance for the selected year
+        $selectedYear = (int) $yearDate->format('Y');
+        $vacationAllowance = $vacationAllowanceRepository->findByUserAndYear($profile, $selectedYear);
+        $vacationAllowanceHours = $vacationAllowance !== null ? $vacationAllowance->getHours() : 0.0;
+
+        $yearStart = new \DateTime($selectedYear . '-01-01 00:00:00');
+        $yearEnd = new \DateTime(($selectedYear + 1) . '-01-01 00:00:00');
+
+        $vacationUsedSeconds = (int) $timesheetRepository->createQueryBuilder('t')
+            ->select('COALESCE(SUM(t.duration), 0)')
+            ->join('t.project', 'p')
+            ->join('t.activity', 'a')
+            ->where('t.user = :user')
+            ->andWhere('p.name = :projectName')
+            ->andWhere('a.name = :activityName')
+            ->andWhere('t.begin >= :start')
+            ->andWhere('t.begin < :end')
+            ->setParameter('user', $profile->getId())
+            ->setParameter('projectName', 'Time off')
+            ->setParameter('activityName', 'Vacation')
+            ->setParameter('start', $yearStart)
+            ->setParameter('end', $yearEnd)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $vacationUsedHours = $vacationUsedSeconds / 3600.0;
+
         return $this->render('contract/status.html.twig', [
             'days' => $days,
             'withWorkHourConfiguration' => $hasConfiguration,
@@ -120,7 +154,56 @@ final class ContractController extends AbstractController
             'boxes' => $controllerEvent->getController(),
             'year' => $year,
             'user' => $profile,
+            'vacationAllowanceHours' => $vacationAllowanceHours,
+            'vacationUsedHours' => $vacationUsedHours,
+            'selectedYear' => $selectedYear,
         ]);
+    }
+
+    #[Route(path: '/contract/vacation-allowance', name: 'contract_save_vacation', methods: ['POST'])]
+    public function saveVacationAllowance(
+        Request $request,
+        UserRepository $userRepository,
+        VacationAllowanceRepository $vacationAllowanceRepository,
+        CsrfTokenManagerInterface $csrfTokenManager,
+    ): Response {
+        if (!$this->isGranted('hours_other_profile')) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $token = new CsrfToken('vacation_allowance', $request->request->get('_token', ''));
+        if (!$csrfTokenManager->isTokenValid($token)) {
+            throw $this->createAccessDeniedException('Invalid CSRF token');
+        }
+
+        $userId = $request->request->getInt('user');
+        $user = $userRepository->getUserById($userId);
+        if ($user === null) {
+            throw $this->createNotFoundException('User not found');
+        }
+
+        $year = $request->request->getInt('year');
+        if ($year < 2000 || $year > 2100) {
+            throw $this->createNotFoundException('Invalid year');
+        }
+
+        $hours = (float) $request->request->get('hours', 0);
+        if ($hours < 0) {
+            $hours = 0.0;
+        }
+
+        $allowance = $vacationAllowanceRepository->findByUserAndYear($user, $year);
+        if ($allowance === null) {
+            $allowance = new VacationAllowance($user, $year, $hours);
+        } else {
+            $allowance->setHours($hours);
+        }
+
+        $vacationAllowanceRepository->save($allowance);
+
+        $this->addFlash('success', 'vacation_allowance_saved');
+
+        return $this->redirectToRoute('user_contract', ['user' => $userId, 'date' => $year . '-01-01']);
     }
 
     #[Route(path: '/contract/register-holidays', name: 'contract_register_holidays', methods: ['GET'])]

@@ -92,6 +92,39 @@
         {% endembed %}
     {% endif %}
 
+    {% embed '@theme/embeds/collapsible.html.twig' with {id: 'vacation_balance_box', border: false, item: {options: {bodyExtraClass: 'border-top'}, bodyClasses: 'p-3'}} %}
+        {% block title %}{{ 'vacation_allowance'|trans }}{% endblock %}
+        {% block body %}
+            <div class="datagrid mb-3">
+                <div class="datagrid-item">
+                    <div class="datagrid-title">{{ 'vacation_hours_available'|trans }}</div>
+                    <div class="datagrid-content fw-bold">{{ vacationAllowanceHours|number_format(1) }}</div>
+                </div>
+                <div class="datagrid-item">
+                    <div class="datagrid-title">{{ 'vacation_hours_used'|trans }}</div>
+                    <div class="datagrid-content fw-bold {% if vacationUsedHours > vacationAllowanceHours %}text-danger{% endif %}">{{ vacationUsedHours|number_format(1) }}</div>
+                </div>
+                <div class="datagrid-item">
+                    <div class="datagrid-title">{{ 'vacation_hours_remaining'|trans }}</div>
+                    {% set vacationRemaining = vacationAllowanceHours - vacationUsedHours %}
+                    <div class="datagrid-content fw-bold {% if vacationRemaining < 0 %}text-danger{% else %}text-success{% endif %}">{{ vacationRemaining|number_format(1) }}</div>
+                </div>
+            </div>
+            {% if is_granted('hours_other_profile') %}
+                <form method="post" action="{{ path('contract_save_vacation') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('vacation_allowance') }}">
+                    <input type="hidden" name="user" value="{{ user.id }}">
+                    <input type="hidden" name="year" value="{{ selectedYear }}">
+                    <div class="input-group" style="max-width: 300px;">
+                        <span class="input-group-text">{{ 'vacation_hours_per_year'|trans }}</span>
+                        <input type="number" name="hours" class="form-control" min="0" step="0.5" value="{{ vacationAllowanceHours }}">
+                        <button type="submit" class="btn btn-primary">{{ 'action.save'|trans }}</button>
+                    </div>
+                </form>
+            {% endif %}
+        {% endblock %}
+    {% endembed %}
+
     {% if year is defined %}
         {% embed '@theme/embeds/collapsible.html.twig' with {id: 'working_time_detail_box', border: false, item: {options: {bodyExtraClass: 'border-top', open: true}, bodyClasses: 'p-0 table-responsive'}} %}
             {% set yearShould = 0 %}

@@ -2078,6 +2078,34 @@
         <source>confirm.register_public_holidays</source>
         <target>Do you want to register all Dutch public holidays for this user and year?</target>
       </trans-unit>
+      <trans-unit id="vAc1Bx2" resname="vacation_allowance">
+        <source>vacation_allowance</source>
+        <target>Vacation Allowance</target>
+      </trans-unit>
+      <trans-unit id="vAc2Bx3" resname="vacation_hours_available">
+        <source>vacation_hours_available</source>
+        <target>Available</target>
+      </trans-unit>
+      <trans-unit id="vAc3Bx4" resname="vacation_hours_used">
+        <source>vacation_hours_used</source>
+        <target>Used</target>
+      </trans-unit>
+      <trans-unit id="vAc4Bx5" resname="vacation_hours_remaining">
+        <source>vacation_hours_remaining</source>
+        <target>Remaining</target>
+      </trans-unit>
+      <trans-unit id="vAc5Bx6" resname="vacation_allowance_saved">
+        <source>vacation_allowance_saved</source>
+        <target>Vacation allowance saved</target>
+      </trans-unit>
+      <trans-unit id="vAc6Bx7" resname="report_vacation_year">
+        <source>report_vacation_year</source>
+        <target>Vacation Balance</target>
+      </trans-unit>
+      <trans-unit id="vAc7Bx8" resname="vacation_hours_per_year">
+        <source>vacation_hours_per_year</source>
+        <target>Vacation hours per year</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
