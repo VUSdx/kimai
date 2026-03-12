@@ -39,7 +39,7 @@ final class ThemeJavascriptTranslationsEvent extends Event
         'action.update.error' => ['action.update.error', 'flashmessages'],
         'action.delete.success' => ['action.delete.success', 'flashmessages'],
         'action.delete.error' => ['action.delete.error', 'flashmessages'],
-        'confirm.delete' => ['confirm.delete', 'messages'],
+        'confirm.register_public_holidays' => ['confirm.register_public_holidays', 'messages'],
         'delete' => ['delete', 'messages'],
         'login.required' => ['login_required', 'messages'],
         'modal.dirty' => ['modal.dirty', 'messages'],

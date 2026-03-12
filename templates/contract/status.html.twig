@@ -3,7 +3,9 @@
 
 {% block form_addon %}
     {% set event = actions(app.user, 'contract_links', 'index', {year: year, user: user}) %}
-    {{ widgets.actions(event.actions, {button_class: '', large: false}) }}
+    <div class="flex-shrink-0">
+        {{ widgets.actions(event.actions, {button_class: '', large: true}) }}
+    </div>
 {% endblock %}
 
 {% block main %}

@@ -2070,6 +2070,14 @@
         <source>tax.note.reverse_charge</source>
         <target>Tax to be paid on reverse charge basis</target>
       </trans-unit>
+      <trans-unit id="xKm8Nph" resname="register_public_holidays">
+        <source>register_public_holidays</source>
+        <target>Register public holidays</target>
+      </trans-unit>
+      <trans-unit id="yLp3Rqw" resname="confirm.register_public_holidays">
+        <source>confirm.register_public_holidays</source>
+        <target>Do you want to register all Dutch public holidays for this user and year?</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
