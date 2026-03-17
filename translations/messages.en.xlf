@@ -2098,10 +2098,6 @@
         <source>vacation_allowance_saved</source>
         <target>Vacation allowance saved</target>
       </trans-unit>
-      <trans-unit id="vAc6Bx7" resname="report_vacation_year">
-        <source>report_vacation_year</source>
-        <target>Vacation Balance</target>
-      </trans-unit>
       <trans-unit id="vAc7Bx8" resname="vacation_hours_per_year">
         <source>vacation_hours_per_year</source>
         <target>Vacation hours per year</target>

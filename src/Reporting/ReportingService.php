@@ -35,6 +35,7 @@ final class ReportingService
                 $event->addReport(new Report('year_by_user', 'report_user_year', 'report_user_year', 'user'));
                 $event->addReport(new Report('commute_by_year', 'report_commute_year', 'report_commute_year', 'user'));
                 $event->addReport(new Report('vacation_by_year', 'report_vacation_year', 'report_vacation_year', 'user'));
+                $event->addReport(new Report('leave_by_year', 'report_leave_year', 'report_leave_year', 'user'));
             }
 
             if ($viewOther = $this->security->isGranted('report:other')) {

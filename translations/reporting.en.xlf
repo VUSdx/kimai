@@ -54,6 +54,14 @@
         <source>report_customer_monthly_projects</source>
         <target>Projects by month, activity and user</target>
       </trans-unit>
+      <trans-unit id="vAc6Bx7" resname="report_vacation_year">
+        <source>report_vacation_year</source>
+        <target>Vacation Balance</target>
+      </trans-unit>
+      <trans-unit id="lEv1By2" resname="report_leave_year">
+        <source>report_leave_year</source>
+        <target>Leave Days</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
