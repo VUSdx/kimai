@@ -33,10 +33,10 @@
                         <td>{{ widgets.username(user) }}</td>
                         {% for month in 1..12 %}
                             <td class="text-center">
-                                {{ countsByMonth[month]['cnt'] }}
+                                {{ countsByMonth[month]['cnt']|number_format(1) }}
                             </td>
                         {% endfor %}
-                        <td class="text-center">{{ total }}</td>
+                        <td class="text-center">{{ total|number_format(1) }}</td>
                     </tr>
                 </tbody>
             </table>

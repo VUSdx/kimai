@@ -63,12 +63,12 @@ final class LeaveReportController extends AbstractController
         $next = clone $values->getDate();
         $next->modify('+1 year');
 
-        // Count distinct leave days per month (project "Time off", activity "Leave")
+        // Sum leave hours per month (project "Time off", activity "Leave"), expressed as days (hours / 8)
         $yearStart = new \DateTime($year . '-01-01 00:00:00');
         $yearEnd = new \DateTime(($year + 1) . '-01-01 00:00:00');
 
         $qb = $timesheetRepository->createQueryBuilder('t');
-        $qb->select('MONTH(t.begin) as month, COUNT(DISTINCT DATE(t.begin)) as cnt')
+        $qb->select('MONTH(t.begin) as month, SUM(t.duration) as seconds')
             ->join('t.project', 'p')
             ->join('t.activity', 'a')
             ->where('t.user = :user')
@@ -87,11 +87,11 @@ final class LeaveReportController extends AbstractController
         for ($m = 1; $m <= 12; $m++) {
             $countsByMonth[$m] = [
                 'month' => new \DateTime($year . '-' . str_pad((string) $m, 2, '0', STR_PAD_LEFT) . '-01'),
-                'cnt' => 0,
+                'cnt' => 0.0,
             ];
         }
         foreach ($qb->getQuery()->getResult() as $row) {
-            $countsByMonth[(int) $row['month']]['cnt'] = (int) $row['cnt'];
+            $countsByMonth[(int) $row['month']]['cnt'] = (int) $row['seconds'] / 28800.0;
         }
 
         $total = array_sum(array_column($countsByMonth, 'cnt'));
