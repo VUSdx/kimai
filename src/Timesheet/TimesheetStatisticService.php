@@ -283,6 +283,8 @@ final class TimesheetStatisticService
             }
         }
 
+        $excludedProjectNames = $query->getExcludedProjectNames();
+
         $qb = $this->repository->createQueryBuilder('t');
         $qb
             ->select('COALESCE(SUM(t.rate), 0) as rate')
@@ -308,6 +310,14 @@ final class TimesheetStatisticService
             $qb
                 ->andWhere($qb->expr()->eq('t.project', ':project'))
                 ->setParameter('project', $project)
+            ;
+        }
+
+        if (!empty($excludedProjectNames)) {
+            $qb
+                ->join('t.project', 'p')
+                ->andWhere($qb->expr()->notIn('p.name', ':excludedProjectNames'))
+                ->setParameter('excludedProjectNames', $excludedProjectNames)
             ;
         }
 

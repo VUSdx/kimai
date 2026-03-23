@@ -62,6 +62,10 @@
         <source>report_leave_year</source>
         <target>Leave Days</target>
       </trans-unit>
+      <trans-unit id="work_hours_year" resname="report_work_hours_year">
+        <source>report_work_hours_year</source>
+        <target>WBSO</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

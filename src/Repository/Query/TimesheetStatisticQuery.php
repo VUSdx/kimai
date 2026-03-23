@@ -15,6 +15,8 @@ use App\Entity\User;
 final class TimesheetStatisticQuery
 {
     private ?Project $project = null;
+    /** @var string[] */
+    private array $excludedProjectNames = [];
 
     /**
      * @param array<User> $users
@@ -53,5 +55,21 @@ final class TimesheetStatisticQuery
     public function setProject(?Project $project): void
     {
         $this->project = $project;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getExcludedProjectNames(): array
+    {
+        return $this->excludedProjectNames;
+    }
+
+    /**
+     * @param string[] $names
+     */
+    public function setExcludedProjectNames(array $names): void
+    {
+        $this->excludedProjectNames = $names;
     }
 }
