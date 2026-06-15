@@ -88,6 +88,7 @@ function prepareKimai() {
 function installPlugins() {
   # These are idempotent, so we can run them on every start-up
   cd /opt/kimai
+  cp -r plugins var/plugins
   /opt/kimai/bin/console kimai:plugins --install
   
   echo "Plugins installed"
