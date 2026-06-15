@@ -20,7 +20,7 @@ jobs:
       - name: Checkout KimaiCapacityPlanning
         uses: actions/checkout@v4
         with: 
-          repository: VUSdx/TIDE_app
+          repository: VUSdx/KimaiCapacityPlanning
           path: var/plugins/BiotechPlannerBundle
           token: ${{ secrets.GH_PAT }}
 
@@ -39,5 +39,3 @@ jobs:
           tags: ${{ vars.ACR_ENDPOINT }}/${{ env.IMAGE_NAME }}
           build-args: |
             BASE=apache
-            GITHUB_TOKEN=${{ secrets.GH_PAT }}
-            GIT_SHA=${{ github.event.repository.name }}: ${{ github.sha }}
