@@ -85,6 +85,14 @@ function prepareKimai() {
   echo "Kimai is ready"
 }
 
+function installPlugins() {
+  # These are idempotent, so we can run them on every start-up
+  cd /opt/kimai
+  /opt/kimai/bin/console kimai:plugins --install
+  
+  echo "Plugins installed"
+}
+
 function runServer() {
   # Just while I'm fixing things
   /opt/kimai/bin/console kimai:reload --env="$APP_ENV"
@@ -101,4 +109,5 @@ function runServer() {
 waitForDB
 handleStartup
 prepareKimai
+installPlugins
 runServer

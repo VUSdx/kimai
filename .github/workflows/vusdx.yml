@@ -1,4 +1,4 @@
-name: Build In silico variant annotation container
+name: Build kimai container
 
 on:
   push:
