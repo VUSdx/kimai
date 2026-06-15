@@ -16,6 +16,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        
+      - name: Checkout KimaiCapacityPlanning
+        uses: actions/checkout@v4
+        with: 
+          repository: VUSdx/TIDE_app
+          path: var/plugins/BiotechPlannerBundle
+          token: ${{ secrets.GH_PAT }}
+
       - name: Log into registry
         uses: docker/login-action@v3
         with:
