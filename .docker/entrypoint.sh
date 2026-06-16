@@ -90,6 +90,8 @@ function installPlugins() {
   cd /opt/kimai
   cp -r plugins/* var/plugins/
   /opt/kimai/bin/console kimai:plugins --install
+  # Do data migration for BiotechPlannerBundle plugin
+  bin/console doctrine:migrations:migrate --em=default --configuration=var/plugins/BiotechPlannerBundle/Migrations/doctrine_migrations.yaml
   
   echo "Plugins installed"
 }
