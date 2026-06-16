@@ -3,7 +3,7 @@ name: Build kimai azure image
 on:
   push:
     branches:
-      vusdx-install-changes
+      main
   workflow_dispatch:
 
 env:
