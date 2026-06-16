@@ -1,4 +1,4 @@
-name: Build kimai container
+name: Build kimai azure image
 
 on:
   push:
