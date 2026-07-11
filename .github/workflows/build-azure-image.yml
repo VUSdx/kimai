@@ -17,10 +17,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         
-      - name: Checkout KimaiCapacityPlanning
+      - name: Checkout kimai-capacity-planning
         uses: actions/checkout@v4
         with: 
-          repository: VUSdx/KimaiCapacityPlanning
+          repository: VUSdx/kimai-capacity-planning
           path: plugins/BiotechPlannerBundle
           token: ${{ secrets.GH_PAT }}
 
