@@ -332,7 +332,7 @@
       </trans-unit>
       <trans-unit id="commute" resname="commute">
         <source>commute</source>
-        <target>Commuted to office</target>
+        <target>Commuted to office by car</target>
       </trans-unit>
       <trans-unit id="pWFFJwz" resname="id">
         <source>id</source>
