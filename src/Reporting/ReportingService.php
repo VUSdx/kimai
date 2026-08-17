@@ -43,6 +43,7 @@ final class ReportingService
                 $event->addReport(new Report('monthly_users_list', 'report_monthly_users', 'report_monthly_users', 'users'));
                 $event->addReport(new Report('yearly_users_list', 'report_yearly_users', 'report_yearly_users', 'users'));
                 $event->addReport(new Report('work_hours_year', 'report_work_hours_year', 'report_work_hours_year', 'users'));
+                $event->addReport(new Report('work_hours_month', 'report_work_hours_month', 'report_work_hours_month', 'users'));
             }
 
             if ($this->security->isGranted('report:project')) {

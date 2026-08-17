@@ -66,6 +66,10 @@
         <source>report_work_hours_year</source>
         <target>WBSO</target>
       </trans-unit>
+      <trans-unit id="work_hours_month" resname="report_work_hours_month">
+        <source>report_work_hours_month</source>
+        <target>WBSO (per day)</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -41,6 +41,8 @@ final class TimesheetStatisticService
             }
         }
 
+        $excludedProjectNames = $query->getExcludedProjectNames();
+
         $qb = $this->repository->createQueryBuilder('t');
 
         $qb
@@ -69,6 +71,14 @@ final class TimesheetStatisticService
             $qb
                 ->andWhere($qb->expr()->eq('t.project', ':project'))
                 ->setParameter('project', $project)
+            ;
+        }
+
+        if (!empty($excludedProjectNames)) {
+            $qb
+                ->join('t.project', 'p')
+                ->andWhere($qb->expr()->notIn('p.name', ':excludedProjectNames'))
+                ->setParameter('excludedProjectNames', $excludedProjectNames)
             ;
         }
 
