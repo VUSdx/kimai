@@ -21,6 +21,13 @@ yarn.lock export-ignore
 # Source code – normalized
 * text=auto
 
+# Shell scripts MUST keep LF in the working tree, on every platform.
+# With CRLF the shebang becomes "#!/bin/bash\r", so Linux looks for an
+# interpreter named "/bin/bash\r" and exec fails with a misleading
+# "not found" for the script itself (breaks the Docker entrypoint).
+*.sh text eol=lf
+.docker/** text eol=lf
+
 # Build output MUST be binary
 /dist/** -text
 /build/** -text
