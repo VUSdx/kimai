@@ -31,7 +31,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('report:other')]
 final class WorkHoursYearController extends AbstractController
 {
-    private const EXCLUDED_PROJECTS = ['Other activities', 'Time off'];
+    private const EXCLUDED_PROJECTS = ['Non-WBSO activities', 'Time off'];
 
     #[Route(path: '/work_hours_year', name: 'report_work_hours_year', methods: ['GET', 'POST'])]
     public function report(Request $request, SystemConfiguration $systemConfiguration, TimesheetStatisticService $statisticService, UserRepository $userRepository): Response
