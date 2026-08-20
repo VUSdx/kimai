@@ -1,19 +1,31 @@
-{% embed 'reporting/user_list_period_data.html.twig' with {'avatar': false, 'showAccountNumber': true, 'stats': stats, 'dataType': 'duration', 'period_attribute': period_attribute} only %}
-    {% block duration -%}
-        {{ period.totalDuration|duration(true) }}
-    {%- endblock %}
-    {% block total_duration -%}
-        {{ absoluteDuration|duration(true) }}
-    {%- endblock %}
-    {% block total_duration_user -%}
-        {{ usersTotalDuration|duration(true) }}
-    {%- endblock %}
-    {% block total_duration_period -%}
-        {{ total|duration(true) }}
-    {%- endblock %}
-    {% block period_name %}
-        <th class="text-center text-nowrap">
-            {{ column|date_short }}
-        </th>
-    {% endblock %}
-{% endembed %}
+<table>
+    <thead>
+        <tr>
+            <th>{{ 'user'|trans }}</th>
+            <th>{{ 'account_number'|trans }}</th>
+            <th>{{ 'date'|trans }}</th>
+            <th>&nbsp;</th>
+            <th>{{ 'stats.durationTotal'|trans }}</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for day in days %}
+        <tr>
+            <td>{{ user.displayName|sanitize_dde }}</td>
+            <td>{{ user.accountNumber }}</td>
+            <td>{{ day.date|date_short }}</td>
+            <td>{{ day.date|day_name(true) }}</td>
+            <td>{{ day.totalDuration|duration(true) }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <td>{{ 'stats.durationTotal'|trans }}</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>{{ total|duration(true) }}</td>
+        </tr>
+    </tfoot>
+</table>

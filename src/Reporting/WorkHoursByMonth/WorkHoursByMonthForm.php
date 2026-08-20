@@ -9,8 +9,8 @@
 
 namespace App\Reporting\WorkHoursByMonth;
 
-use App\Form\Type\MonthPickerType;
-use App\Form\Type\TeamType;
+use App\Form\Type\UserType;
+use App\Form\Type\YearPickerType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -22,15 +22,15 @@ final class WorkHoursByMonthForm extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->add('date', MonthPickerType::class, [
+        $builder->add('date', YearPickerType::class, [
             'model_timezone' => $options['timezone'],
             'view_timezone' => $options['timezone'],
             'start_date' => $options['start_date'],
         ]);
-        $builder->add('team', TeamType::class, [
-            'multiple' => false,
-            'required' => false,
+        $builder->add('user', UserType::class, [
             'width' => false,
+            'include_disabled' => true,
+            'include_current_user_if_system_account' => true,
         ]);
     }
 

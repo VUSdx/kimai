@@ -9,13 +9,13 @@
 
 namespace App\Reporting\WorkHoursByMonth;
 
-use App\Entity\Team;
+use App\Entity\User;
 
 final class WorkHoursByMonth
 {
     private ?\DateTimeInterface $date = null;
     private bool $decimal = false;
-    private ?Team $team = null;
+    private ?User $user = null;
 
     public function getDate(): ?\DateTimeInterface
     {
@@ -37,13 +37,13 @@ final class WorkHoursByMonth
         $this->decimal = $decimal;
     }
 
-    public function getTeam(): ?Team
+    public function getUser(): ?User
     {
-        return $this->team;
+        return $this->user;
     }
 
-    public function setTeam(?Team $team = null): void
+    public function setUser(?User $user = null): void
     {
-        $this->team = $team;
+        $this->user = $user;
     }
 }
