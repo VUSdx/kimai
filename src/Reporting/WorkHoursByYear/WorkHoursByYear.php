@@ -9,13 +9,23 @@
 
 namespace App\Reporting\WorkHoursByYear;
 
-use App\Entity\Team;
+use App\Entity\User;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 final class WorkHoursByYear
 {
     private ?\DateTimeInterface $date = null;
     private bool $decimal = false;
-    private ?Team $team = null;
+    /**
+     * @var Collection<int, User>
+     */
+    private Collection $users;
+
+    public function __construct()
+    {
+        $this->users = new ArrayCollection();
+    }
 
     public function getDate(): ?\DateTimeInterface
     {
@@ -37,13 +47,19 @@ final class WorkHoursByYear
         $this->decimal = $decimal;
     }
 
-    public function getTeam(): ?Team
+    /**
+     * @return Collection<int, User>
+     */
+    public function getUsers(): Collection
     {
-        return $this->team;
+        return $this->users;
     }
 
-    public function setTeam(?Team $team = null): void
+    /**
+     * @param Collection<int, User> $users
+     */
+    public function setUsers(Collection $users): void
     {
-        $this->team = $team;
+        $this->users = $users;
     }
 }

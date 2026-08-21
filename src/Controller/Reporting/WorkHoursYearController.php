@@ -78,22 +78,20 @@ final class WorkHoursYearController extends AbstractController
 
         $form->submit($request->query->all(), false);
 
-        $query = new UserQuery();
-        $query->setVisibility(VisibilityInterface::SHOW_BOTH);
-        $query->setSystemAccount(false);
-        $query->setCurrentUser($currentUser);
-
-        if ($form->isSubmitted()) {
-            if (!$form->isValid()) {
-                $values->setDate(clone $defaultDate);
-            } else {
-                if ($values->getTeam() !== null) {
-                    $query->setSearchTeams([$values->getTeam()]);
-                }
-            }
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $values->setDate(clone $defaultDate);
         }
 
-        $allUsers = $userRepository->getUsersForQuery($query);
+        $allUsers = $values->getUsers()->toArray();
+
+        // no selection means: all users the current one is allowed to see
+        if (\count($allUsers) === 0) {
+            $query = new UserQuery();
+            $query->setVisibility(VisibilityInterface::SHOW_BOTH);
+            $query->setSystemAccount(false);
+            $query->setCurrentUser($currentUser);
+            $allUsers = $userRepository->getUsersForQuery($query);
+        }
 
         if ($values->getDate() === null) {
             $values->setDate(clone $defaultDate);

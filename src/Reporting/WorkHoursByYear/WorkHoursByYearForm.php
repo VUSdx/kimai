@@ -9,7 +9,7 @@
 
 namespace App\Reporting\WorkHoursByYear;
 
-use App\Form\Type\TeamType;
+use App\Form\Type\UserType;
 use App\Form\Type\YearPickerType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -27,10 +27,13 @@ final class WorkHoursByYearForm extends AbstractType
             'view_timezone' => $options['timezone'],
             'start_date' => $options['start_date'],
         ]);
-        $builder->add('team', TeamType::class, [
-            'multiple' => false,
+        $builder->add('users', UserType::class, [
+            'label' => 'users',
+            'multiple' => true,
             'required' => false,
             'width' => false,
+            'include_disabled' => true,
+            'include_current_user_if_system_account' => true,
         ]);
     }
 
