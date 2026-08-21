@@ -27,7 +27,10 @@ final class WorkHoursByMonthForm extends AbstractType
             'view_timezone' => $options['timezone'],
             'start_date' => $options['start_date'],
         ]);
-        $builder->add('user', UserType::class, [
+        $builder->add('users', UserType::class, [
+            'label' => 'users',
+            'multiple' => true,
+            'required' => false,
             'width' => false,
             'include_disabled' => true,
             'include_current_user_if_system_account' => true,

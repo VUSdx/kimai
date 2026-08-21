@@ -1,30 +1,37 @@
 <table>
     <thead>
         <tr>
-            <th>{{ 'user'|trans }}</th>
-            <th>{{ 'account_number'|trans }}</th>
             <th>{{ 'date'|trans }}</th>
-            <th>&nbsp;</th>
+            {% for user in users %}
+                <th>{{ user.displayName|sanitize_dde }}</th>
+            {% endfor %}
             <th>{{ 'stats.durationTotal'|trans }}</th>
+        </tr>
+        <tr>
+            <th>{{ 'account_number'|trans }}</th>
+            {% for user in users %}
+                <th>{{ user.accountNumber }}</th>
+            {% endfor %}
+            <th>&nbsp;</th>
         </tr>
     </thead>
     <tbody>
-    {% for day in days %}
+    {% for row in rows %}
         <tr>
-            <td>{{ user.displayName|sanitize_dde }}</td>
-            <td>{{ user.accountNumber }}</td>
-            <td>{{ day.date|date_short }}</td>
-            <td>{{ day.date|day_name(true) }}</td>
-            <td>{{ day.totalDuration|duration(true) }}</td>
+            <td>{{ row.date|date_short }}</td>
+            {% for user in users %}
+                <td>{{ row.durations[user.id].duration|duration(true) }}</td>
+            {% endfor %}
+            <td>{{ row.total|duration(true) }}</td>
         </tr>
     {% endfor %}
     </tbody>
     <tfoot>
         <tr>
             <td>{{ 'stats.durationTotal'|trans }}</td>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td>
+            {% for user in users %}
+                <td>{{ userTotals[user.id]|duration(true) }}</td>
+            {% endfor %}
             <td>{{ total|duration(true) }}</td>
         </tr>
     </tfoot>

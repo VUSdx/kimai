@@ -1,10 +1,9 @@
 {% extends 'reporting/report_user_list_layout.html.twig' %}
-{% import "macros/widgets.html.twig" as widgets %}
 
 {% block report_form_layout %}
     {{ form_widget(form.date) }}
-    {% if form.user is defined %}
-        {{ form_widget(form.user, {'label': false}) }}
+    {% if form.users is defined %}
+        {{ form_widget(form.users, {'label': false}) }}
     {% endif %}
     {% from '@theme/components/buttons.html.twig' import submit_button %}
     {{ submit_button('download', {'attr': {'formaction': path(export_route)}, 'icon': 'download', 'combined': false}) }}
@@ -15,27 +14,35 @@
         <thead>
             <tr>
                 <th>{{ 'date'|trans }}</th>
-                <th>&nbsp;</th>
-                <th class="text-center reportDataTypeTitle">{{ 'stats.durationTotal'|trans }}</th>
+                {% for user in users %}
+                    <th class="text-center text-nowrap">
+                        <a href="{{ path('report_user_year', {'date': year|report_date, 'user': user.id}) }}">
+                            {{ user.displayName|sanitize_dde }}
+                        </a>
+                    </th>
+                {% endfor %}
+                <th class="text-center text-nowrap reportDataTypeTitle">{{ 'stats.durationTotal'|trans }}</th>
             </tr>
         </thead>
         <tbody>
-        {% for day in days %}
-            {% set day_class = (day.date is weekend ? ' weekend' : '') ~ (day.date is today ? ' today' : '') %}
+        {% for row in rows %}
+            {% set row_class = (row.date is weekend ? ' weekend' : '') ~ (row.date is today ? ' today' : '') %}
             <tr>
-                <td class="text-nowrap{{ day_class }}">
-                    <a href="{{ path('report_user_month', {'date': create_date(day.date.format('Y') ~ '-' ~ day.date.format('m') ~ '-01')|report_date, 'user': user.id}) }}">
-                        {{ day.date|date_short }}
-                    </a>
+                <td class="text-nowrap{{ row_class }}">
+                    {{ row.date|date_short }}
                 </td>
-                <td class="text-nowrap{{ day_class }}">
-                    {{ day.date|day_name(true) }}
-                </td>
-                <td class="text-nowrap text-center day-total{{ day_class }}">
-                    {% if day.totalDuration != 0 %}
-                        <span data-toggle="tooltip" title="{{ 'billable'|trans }}: {{ day.billableDuration|duration(decimal) }}">
-                            {{ day.totalDuration|duration(decimal) }}
-                        </span>
+                {% for user in users %}
+                    <td class="text-nowrap text-center day-total{{ row_class }}">
+                        {% if row.durations[user.id].duration != 0 %}
+                            <a href="{{ path('report_user_month', {'date': create_date(row.date.format('Y') ~ '-' ~ row.date.format('m') ~ '-01')|report_date, 'user': user.id}) }}" data-toggle="tooltip" title="{{ 'billable'|trans }}: {{ row.durations[user.id].billable|duration(decimal) }}">
+                                {{ row.durations[user.id].duration|duration(decimal) }}
+                            </a>
+                        {% endif %}
+                    </td>
+                {% endfor %}
+                <td class="text-nowrap text-center total{{ row_class }}">
+                    {% if row.total != 0 %}
+                        {{ row.total|duration(decimal) }}
                     {% endif %}
                 </td>
             </tr>
@@ -43,11 +50,14 @@
         </tbody>
         <tfoot>
             <tr class="summary">
-                <td colspan="2">{{ 'stats.durationTotal'|trans }}</td>
+                <td>{{ 'stats.durationTotal'|trans }}</td>
+                {% for user in users %}
+                    <td class="text-center text-nowrap">
+                        {{ userTotals[user.id]|duration(decimal) }}
+                    </td>
+                {% endfor %}
                 <td class="text-center text-nowrap">
-                    <a href="{{ path('report_user_year', {'date': year|report_date, 'user': user.id}) }}">
-                        {{ total|duration(decimal) }}
-                    </a>
+                    {{ total|duration(decimal) }}
                 </td>
             </tr>
         </tfoot>

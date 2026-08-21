@@ -10,11 +10,15 @@
 namespace App\Controller\Reporting;
 
 use App\Controller\AbstractController;
+use App\Entity\User;
 use App\Export\Spreadsheet\Writer\BinaryFileResponseWriter;
 use App\Export\Spreadsheet\Writer\XlsxWriter;
 use App\Reporting\WorkHoursByMonth\WorkHoursByMonth;
 use App\Reporting\WorkHoursByMonth\WorkHoursByMonthForm;
 use App\Repository\Query\TimesheetStatisticQuery;
+use App\Repository\Query\UserQuery;
+use App\Repository\Query\VisibilityInterface;
+use App\Repository\UserRepository;
 use App\Timesheet\TimesheetStatisticService;
 use PhpOffice\PhpSpreadsheet\Reader\Html;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,18 +33,18 @@ final class WorkHoursMonthController extends AbstractController
     private const EXCLUDED_PROJECTS = ['Non-WBSO activities', 'Time off'];
 
     #[Route(path: '/work_hours_month', name: 'report_work_hours_month', methods: ['GET', 'POST'])]
-    public function report(Request $request, TimesheetStatisticService $statisticService): Response
+    public function report(Request $request, TimesheetStatisticService $statisticService, UserRepository $userRepository): Response
     {
         return $this->render(
             'reporting/work_hours_by_month.html.twig',
-            $this->getData($request, $statisticService)
+            $this->getData($request, $statisticService, $userRepository)
         );
     }
 
     #[Route(path: '/work_hours_month_export', name: 'report_work_hours_month_export', methods: ['GET', 'POST'])]
-    public function export(Request $request, TimesheetStatisticService $statisticService): Response
+    public function export(Request $request, TimesheetStatisticService $statisticService, UserRepository $userRepository): Response
     {
-        $data = $this->getData($request, $statisticService);
+        $data = $this->getData($request, $statisticService, $userRepository);
 
         $content = $this->renderView('reporting/work_hours_by_month_export.html.twig', $data);
 
@@ -52,13 +56,12 @@ final class WorkHoursMonthController extends AbstractController
         return $writer->getFileResponse($spreadsheet);
     }
 
-    private function getData(Request $request, TimesheetStatisticService $statisticService): array
+    private function getData(Request $request, TimesheetStatisticService $statisticService, UserRepository $userRepository): array
     {
         $currentUser = $this->getUser();
         $dateTimeFactory = $this->getDateTimeFactory();
 
         $values = new WorkHoursByMonth();
-        $values->setUser($currentUser);
         $values->setDate($dateTimeFactory->createStartOfYear());
 
         $form = $this->createFormForGetRequest(WorkHoursByMonthForm::class, $values, [
@@ -70,26 +73,70 @@ final class WorkHoursMonthController extends AbstractController
 
         if ($form->isSubmitted() && !$form->isValid()) {
             $values->setDate($dateTimeFactory->createStartOfYear());
-            $values->setUser($currentUser);
         }
 
         if ($values->getDate() === null) {
             $values->setDate($dateTimeFactory->createStartOfYear());
         }
 
-        $selectedUser = $values->getUser() ?? $currentUser;
+        $selectedUsers = $values->getUsers()->toArray();
+
+        // no selection means: all users the current one is allowed to see
+        if (\count($selectedUsers) === 0) {
+            $userQuery = new UserQuery();
+            $userQuery->setVisibility(VisibilityInterface::SHOW_BOTH);
+            $userQuery->setSystemAccount(false);
+            $userQuery->setCurrentUser($currentUser);
+            $selectedUsers = $userRepository->getUsersForQuery($userQuery);
+        }
+
+        usort($selectedUsers, fn (User $a, User $b) => strtolower($a->getDisplayName()) <=> strtolower($b->getDisplayName()));
+
         $start = $dateTimeFactory->createStartOfYear($values->getDate());
         $end = $dateTimeFactory->createEndOfYear($values->getDate());
 
-        $statsQuery = new TimesheetStatisticQuery($start, $end, [$selectedUser]);
-        $statsQuery->setExcludedProjectNames(self::EXCLUDED_PROJECTS);
-        $dayStats = $statisticService->getDailyStatistics($statsQuery);
-
-        $days = \count($dayStats) === 0 ? [] : $dayStats[0]->getDays();
-
+        $rows = [];
+        $userTotals = [];
         $total = 0;
-        foreach ($days as $day) {
-            $total += $day->getTotalDuration();
+
+        if (\count($selectedUsers) > 0) {
+            $statsQuery = new TimesheetStatisticQuery($start, $end, $selectedUsers);
+            $statsQuery->setExcludedProjectNames(self::EXCLUDED_PROJECTS);
+            $statistics = $statisticService->getDailyStatistics($statsQuery);
+
+            $statisticsByUser = [];
+            foreach ($statistics as $statistic) {
+                $statisticsByUser[(string) $statistic->getUser()->getId()] = $statistic;
+            }
+
+            foreach ($selectedUsers as $user) {
+                $userTotals[(string) $user->getId()] = 0;
+            }
+
+            foreach ($statistics[0]->getDateTimes() as $date) {
+                $reportDate = $date->format('Y-m-d');
+                $durations = [];
+                $rowTotal = 0;
+
+                foreach ($selectedUsers as $user) {
+                    $userId = (string) $user->getId();
+                    $day = $statisticsByUser[$userId]->getDayByReportDate($reportDate);
+                    $duration = $day !== null ? $day->getTotalDuration() : 0;
+                    $durations[$userId] = [
+                        'duration' => $duration,
+                        'billable' => $day !== null ? $day->getBillableDuration() : 0,
+                    ];
+                    $rowTotal += $duration;
+                    $userTotals[$userId] += $duration;
+                }
+
+                $rows[] = [
+                    'date' => $date,
+                    'durations' => $durations,
+                    'total' => $rowTotal,
+                ];
+                $total += $rowTotal;
+            }
         }
 
         return [
@@ -98,9 +145,10 @@ final class WorkHoursMonthController extends AbstractController
             'export_route' => 'report_work_hours_month_export',
             'decimal' => $values->isDecimal(),
             'form' => $form->createView(),
-            'user' => $selectedUser,
+            'users' => $selectedUsers,
             'year' => $start,
-            'days' => $days,
+            'rows' => $rows,
+            'userTotals' => $userTotals,
             'total' => $total,
             'hasData' => $total > 0,
         ];

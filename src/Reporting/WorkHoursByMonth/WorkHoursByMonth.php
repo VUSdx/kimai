@@ -10,12 +10,22 @@
 namespace App\Reporting\WorkHoursByMonth;
 
 use App\Entity\User;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 final class WorkHoursByMonth
 {
     private ?\DateTimeInterface $date = null;
     private bool $decimal = false;
-    private ?User $user = null;
+    /**
+     * @var Collection<int, User>
+     */
+    private Collection $users;
+
+    public function __construct()
+    {
+        $this->users = new ArrayCollection();
+    }
 
     public function getDate(): ?\DateTimeInterface
     {
@@ -37,13 +47,19 @@ final class WorkHoursByMonth
         $this->decimal = $decimal;
     }
 
-    public function getUser(): ?User
+    /**
+     * @return Collection<int, User>
+     */
+    public function getUsers(): Collection
     {
-        return $this->user;
+        return $this->users;
     }
 
-    public function setUser(?User $user = null): void
+    /**
+     * @param Collection<int, User> $users
+     */
+    public function setUsers(Collection $users): void
     {
-        $this->user = $user;
+        $this->users = $users;
     }
 }
